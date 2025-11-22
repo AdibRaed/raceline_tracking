@@ -131,7 +131,7 @@ def controller(
     # I set it to max velocity on straight, but it violates track too much - Adib
     # howard can you fix - Adib :((
 
-    if curvature < 1e-3:
+    if abs(curvature) < 1e-3:
         v_ref = parameters[5]  # max vel on straight
     else:
         # use a = v^2/r from circular motion to estimate speed
