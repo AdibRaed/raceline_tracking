@@ -130,12 +130,17 @@ def controller(
 
     # I set it to max velocity on straight, but it violates track too much - Adib
     # howard can you fix - Adib :((
-    
+
     if curvature < 1e-3:
         v_ref = parameters[5]  # max vel on straight
     else:
         # use a = v^2/r from circular motion to estimate speed
-        max_acc = parameters[10]
+
+        # apparently the max acceleration given  is longitudinal, and this 
+        # forumla gives lateral acceleration so we gotta guess 
+        # max_acc = parameters[10]
+        max_acc = 8 
+
         v_ref = np.sqrt(max_acc / abs(curvature))
 
     # clamp the velocity according to limits
