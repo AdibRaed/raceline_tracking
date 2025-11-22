@@ -143,6 +143,14 @@ def controller(
 
         v_ref = np.sqrt(max_acc / abs(curvature))
 
+    # another heuristic I tried, with 40 max speed and 5 min speed
+    # seems to make less errors but slower - Adib
+
+    # curvature_factor = min(1.0, abs(heading_error) / (np.pi / 4.0))
+    # v_ref = 40 * (1.0 - 0.7 * curvature_factor)
+    # v_ref = max(v_ref, 5)
+
+
     # clamp the velocity according to limits
     v_min = parameters[2]
     v_max = parameters[5]
