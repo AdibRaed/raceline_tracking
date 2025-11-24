@@ -105,9 +105,7 @@ def controller(
     phi = state[4]
     position = np.array([sx, sy])
 
-    path_pts = raceline
-
-    lookahead_point = _find_lookahead_point(path_pts, position, LOOKAHEAD_DISTANCE)
+    lookahead_point = _find_lookahead_point(raceline, position, LOOKAHEAD_DISTANCE)
 
     # calculate heading  
     vec_to_lookahead = lookahead_point - position
