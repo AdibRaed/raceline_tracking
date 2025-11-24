@@ -29,17 +29,20 @@ time_step = 0.1
 # Howard please tune these numbers ;-; -Adib 
 
 # gains for velocity PID controller
-KP_V = 1.0
+KP_V = 6.0
 KI_V = 0.3
-KD_V = 0.1
+KD_V = 4
 
 # gains for steering angle PID controller
-KP_DELTA = 4.0
-KI_DELTA = 0.5
-KD_DELTA = 0.5
+KP_DELTA = 10.0
+KI_DELTA = 0.0
+KD_DELTA = 0.7
+
 
 # Lookahead distance along the raceline (meters)
-LOOKAHEAD_DISTANCE = 20.0
+# LOOKAHEAD_DISTANCE = 20.0
+BASE_LOOKAHEAD = 10.0   # min lookahead (m)
+MAX_LOOKAHEAD  = 25.0   # max lookahead (m)
 
 _prev_v_error = 0.0
 _int_v_error = 0.0
@@ -105,7 +108,11 @@ def controller(
     phi = state[4]
     position = np.array([sx, sy])
 
-    lookahead_point = _find_lookahead_point(raceline, position, LOOKAHEAD_DISTANCE)
+    speed_factor = np.clip(v / max(parameters[5], 1e-3), 0.0, 1.0)
+    lookahead = BASE_LOOKAHEAD + (MAX_LOOKAHEAD - BASE_LOOKAHEAD) * speed_factor
+
+    # lookahead_point = _find_lookahead_point(raceline, position, LOOKAHEAD_DISTANCE)
+    lookahead_point = _find_lookahead_point(raceline, position, lookahead)
 
     # calculate heading  
     vec_to_lookahead = lookahead_point - position
@@ -141,9 +148,10 @@ def controller(
         # apparently the max acceleration given  is longitudinal, and this 
         # forumla gives lateral acceleration so we gotta guess 
         # max_acc = parameters[10]
-        max_acc = 8 
+        max_acc = 9
 
         v_ref = np.sqrt(max_acc / abs(curvature))
+        v_ref = max(v_ref, 40)
 
     # another heuristic I tried, with 40 max speed and 5 min speed
     # seems to make less errors but slower - Adib
