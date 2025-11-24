@@ -16,7 +16,7 @@
 # ) -> ArrayLike:
 #     return np.array([0, 100]).T
 
-import sys
+from sys import argv
 import numpy as np
 from numpy.typing import ArrayLike
 
@@ -46,6 +46,10 @@ _int_v_error = 0.0
 
 _prev_delta_error = 0.0
 _int_delta_error = 0.0
+
+# add raceline 
+raceline = np.loadtxt(argv[2], comments="#", delimiter=",")
+raceline = raceline[:, 0:2]
 
 def _wrap_to_pi(angle: float) -> float:
     """Wrap angle to [-pi, pi]."""
@@ -101,7 +105,7 @@ def controller(
     phi = state[4]
     position = np.array([sx, sy])
 
-    path_pts = racetrack.raceline
+    path_pts = raceline
 
     lookahead_point = _find_lookahead_point(path_pts, position, LOOKAHEAD_DISTANCE)
 
