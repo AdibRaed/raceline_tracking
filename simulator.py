@@ -68,8 +68,7 @@ class Simulator:
     def run(self):
         try:
             if self.lap_finished:
-                # exit()
-                self.timer.stop()
+                exit()
 
             self.figure.canvas.flush_events()
             self.axis.cla()

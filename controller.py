@@ -67,18 +67,7 @@ def _find_lookahead_point(
 def controller(
     state: ArrayLike, parameters: ArrayLike, racetrack: RaceTrack
 ) -> ArrayLike:
-    """High-level controller to calculate speed and steering angle to reach the next reference point.
-
-    Inputs:
-        state = [sx, sy, delta, v, phi]
-        parameters: vehicle limits
-        racetrack: contains raceline points
-
-    Output:
-        desired = np.array([delta_ref, v_ref])
-        delta_ref: desired steering angle
-        v_ref: desired speed
-    """
+    
     state = np.asarray(state, dtype=float)
     parameters = np.asarray(parameters, dtype=float)
 
@@ -90,7 +79,6 @@ def controller(
     speed_factor = np.clip(v / max(parameters[5], 1e-3), 0.0, 1.0)
     lookahead = BASE_LOOKAHEAD + (MAX_LOOKAHEAD - BASE_LOOKAHEAD) * speed_factor
 
-    # lookahead_point = _find_lookahead_point(raceline, position, LOOKAHEAD_DISTANCE)
     lookahead_point = _find_lookahead_point(raceline, position, lookahead)
 
     # calculate heading  
@@ -100,12 +88,6 @@ def controller(
     # calculate difference from current heading
     heading_error = _wrap_to_pi(desired_heading - phi)
 
-    # calculate delta ref, how much we need to turn 
-    
-    # we can use this too, but its way worse than pure pursuit I think - Adib 
-    # delta_ref = KP_DELTA * heading_error
-
-    # use the Pure Pursuit method to calculate delta_ref
     # assume the vechile will go about in a circle
     L = parameters[0]  
     L_d = np.linalg.norm(vec_to_lookahead)
@@ -119,23 +101,9 @@ def controller(
     if abs(curvature) < 1e-3:
         v_ref = parameters[5]  # max vel on straight
     else:
-        # use a = v^2/r from circular motion to estimate speed
-
-        # apparently the max acceleration given  is longitudinal, and this 
-        # forumla gives lateral acceleration so we gotta guess 
-        # max_acc = parameters[10]
-        max_acc = 9
-
-        v_ref = np.sqrt(max_acc / (abs(curvature)))
-        v_ref = max(v_ref, 40)
-
-    # another heuristic I tried, with 40 max speed and 5 min speed
-    # seems to make less errors but slower - Adib
-
-    # curvature_factor = min(1.0, abs(heading_error) / (np.pi / 4.0))
-    # v_ref = 40 * (1.0 - 0.7 * curvature_factor)
-    # v_ref = max(v_ref, 5)
-
+        curvature_factor = min(1.0, abs(heading_error) / (np.pi / 4.0))
+        v_ref = 60 * (1.0 - 0.70 * curvature_factor)
+        v_ref = max(v_ref, 31)
 
     # clamp the velocity according to limits
     v_min = parameters[2]
@@ -148,17 +116,6 @@ def controller(
 def lower_controller(
     state: ArrayLike, desired: ArrayLike, parameters: ArrayLike
 ) -> ArrayLike:
-    """Low-level PID controller.
-    Inputs:
-        state   = [sx, sy, delta, v, phi]
-        desired = [delta_ref, v_ref]
-        parameters: vehicle limits
-
-    Output:
-        u = np.array([v_delta, a])
-        v_delta: steering rate 
-        a: acceleration 
-    """
     global _prev_v_error, _int_v_error
     global _prev_delta_error, _int_delta_error
 
