@@ -1,10 +1,5 @@
 from sys import argv
 
-# qt5 used for testing 
-# comment this before submitting - Adib 
-import matplotlib
-matplotlib.use("Qt5Agg")
-
 from simulator import RaceTrack, Simulator, plt
 
 if __name__ == "__main__":
