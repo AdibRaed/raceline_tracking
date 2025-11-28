@@ -1,21 +1,3 @@
-# import numpy as np
-# from numpy.typing import ArrayLike
-
-# from simulator import RaceTrack
-
-# def lower_controller(
-#     state : ArrayLike, desired : ArrayLike, parameters : ArrayLike
-# ) -> ArrayLike:
-#     # [steer angle, velocity]
-#     assert(desired.shape == (2,))
-
-#     return np.array([0, 100]).T
-
-# def controller(
-#     state : ArrayLike, parameters : ArrayLike, racetrack : RaceTrack
-# ) -> ArrayLike:
-#     return np.array([0, 100]).T
-
 from sys import argv
 import numpy as np
 from numpy.typing import ArrayLike
@@ -25,8 +7,6 @@ from simulator import RaceTrack
 
 # same time as RaceCar.time_step
 time_step = 0.1
-
-# Howard please tune these numbers ;-; -Adib 
 
 # gains for velocity PID controller
 KP_V = 6.0
@@ -39,8 +19,7 @@ KI_DELTA = 0.0
 KD_DELTA = 0.7
 
 
-# Lookahead distance along the raceline (meters)
-# LOOKAHEAD_DISTANCE = 20.0
+# Lookahead distance along the raceline 
 BASE_LOOKAHEAD = 10.0   # min lookahead (m)
 MAX_LOOKAHEAD  = 25.0   # max lookahead (m)
 
@@ -137,9 +116,6 @@ def controller(
     delta_max = parameters[4] 
     delta_ref = np.clip(delta_ref, delta_min, delta_max) # clamp the steering angle
 
-    # I set it to max velocity on straight, but it violates track too much - Adib
-    # howard can you fix - Adib :((
-
     if abs(curvature) < 1e-3:
         v_ref = parameters[5]  # max vel on straight
     else:
@@ -150,7 +126,7 @@ def controller(
         # max_acc = parameters[10]
         max_acc = 9
 
-        v_ref = np.sqrt(max_acc / abs(curvature))
+        v_ref = np.sqrt(max_acc / (abs(curvature)))
         v_ref = max(v_ref, 40)
 
     # another heuristic I tried, with 40 max speed and 5 min speed
